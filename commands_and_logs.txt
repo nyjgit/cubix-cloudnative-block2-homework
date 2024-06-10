@@ -1,0 +1,101 @@
+# running the commands from the cubix-cloudnative-block2-homework directory
+
+cd backapp && .\mvnw clean verify
+cd ..\frontapp && .\mvnw clean verify
+cd ..
+
+# creating Dockerfile
+
+docker build -t backimage:1 -f Dockerfile backapp
+docker build -t frontimage:1 -f Dockerfile frontapp
+
+docker inspect backimage:1
+            # ...
+            # "Labels": {
+            #     "cubix.homework.owner": "Nyőgér János",
+            #     "org.opencontainers.image.ref.name": "ubuntu",
+            #     "org.opencontainers.image.version": "22.04"
+            # }
+            # ...
+docker inspect frontimage:1
+            # ...
+            # "Labels": {
+            #     "cubix.homework.owner": "Nyőgér János",
+            #     "org.opencontainers.image.ref.name": "ubuntu",
+            #     "org.opencontainers.image.version": "22.04"
+            # }
+            # ...
+
+cd backapp && .\mvnw clean
+cd ..\frontapp && .\mvnw clean
+cd ..
+
+# creating docker-compose.yaml
+
+docker compose up
+
+# sending a request from Postman with a message:
+# frontapp-1  | 2024-06-10T00:13:34.239Z  INFO 1 --- [nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+# frontapp-1  | 2024-06-10T00:13:34.240Z  INFO 1 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+# frontapp-1  | 2024-06-10T00:13:34.242Z  INFO 1 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms                
+# frontapp-1  | 2024-06-10T00:13:34.316Z  INFO 1 --- [nio-8080-exec-2] h.c.c.api.controller.FrontappController  : Preparing for calling backapp - message was: Hello
+# frontapp-1  | 2024-06-10T00:13:34.322Z  INFO 1 --- [nio-8080-exec-2] h.c.c.api.controller.FrontappController  : Calling backapp
+# backapp-1   | 2024-06-10T00:13:34.469Z  INFO 1 --- [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+# backapp-1   | 2024-06-10T00:13:34.469Z  INFO 1 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+# backapp-1   | 2024-06-10T00:13:34.471Z  INFO 1 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms                
+# backapp-1   | 2024-06-10T00:13:34.527Z  INFO 1 --- [nio-8080-exec-1] hu.cubix.cloud.api.BackappController     : Request arrived with message Hello              
+# backapp-1   | 2024-06-10T00:13:34.536Z  INFO 1 --- [nio-8080-exec-1] hu.cubix.cloud.api.BackappController     : Returning response: BackappResponse[time=2024-06-10T00:13:34.531238531, message=Hello, homeworkOwner=Nyőgér János, hostAddress=172.24.0.2, extraImageData=Cubix training]
+# frontapp-1  | 2024-06-10T00:13:34.703Z  INFO 1 --- [nio-8080-exec-2] h.c.c.api.controller.FrontappController  : Backapp call was successful, response was: BackappResponse[time=2024-06-10T00:13:34.531238531, message=Hello, homeworkOwner=Nyőgér János, hostAddress=172.24.0.2, extraImageData=Cubix training]
+# frontapp-1  | 2024-06-10T00:13:34.710Z  INFO 1 --- [nio-8080-exec-2] h.c.c.api.controller.FrontappController  : Response will be: FrontappResponse[msForReply=208, backappMessage=Hello, frontappHomeworkOwner=Nyőgér János, frontappHostAddress=172.24.0.3, backappHomeworkOwner=Nyőgér János, backappHostAddress=172.24.0.2, doExtraImageDataMatch=true]
+
+# sending a request from Postman without a message:
+# frontapp-1  | 2024-06-10T00:14:38.507Z  INFO 1 --- [nio-8080-exec-5] h.c.c.api.controller.FrontappController  : Preparing for calling backapp - message was: null
+# frontapp-1  | 2024-06-10T00:14:38.508Z  INFO 1 --- [nio-8080-exec-5] h.c.c.api.controller.FrontappController  : Calling backapp
+# backapp-1   | 2024-06-10T00:14:38.513Z  INFO 1 --- [nio-8080-exec-3] hu.cubix.cloud.api.BackappController     : Request arrived with message                    
+# backapp-1   | 2024-06-10T00:14:38.514Z  INFO 1 --- [nio-8080-exec-3] hu.cubix.cloud.api.BackappController     : Message was empty, fall back to default         
+# backapp-1   | 2024-06-10T00:14:38.514Z  INFO 1 --- [nio-8080-exec-3] hu.cubix.cloud.api.BackappController     : Default message was empty, falling back to hardcoded default                                                                                                                                                    
+# frontapp-1  | 2024-06-10T00:14:38.523Z  INFO 1 --- [nio-8080-exec-5] h.c.c.api.controller.FrontappController  : Backapp call was successful, response was: BackappResponse[time=2024-06-10T00:14:38.514693315, message=hardcoded-default-backapp-message, homeworkOwner=Nyőgér János, hostAddress=172.24.0.2, extraImageData=Cubix training]
+# backapp-1   | 2024-06-10T00:14:38.515Z  INFO 1 --- [nio-8080-exec-3] hu.cubix.cloud.api.BackappController     : Returning response: BackappResponse[time=2024-06-10T00:14:38.514693315, message=hardcoded-default-backapp-message, homeworkOwner=Nyőgér János, hostAddress=172.24.0.2, extraImageData=Cubix training]           
+# frontapp-1  | 2024-06-10T00:14:38.524Z  INFO 1 --- [nio-8080-exec-5] h.c.c.api.controller.FrontappController  : Response will be: FrontappResponse[msForReply=6, backappMessage=hardcoded-default-backapp-message, frontappHomeworkOwner=Nyőgér János, frontappHostAddress=172.24.0.3, backappHomeworkOwner=Nyőgér János, backappHostAddress=172.24.0.2, doExtraImageDataMatch=true]
+
+docker compose down
+
+
+
+# Alternatively:
+
+docker compose up -d
+
+# sending a request from Postman with a message
+docker logs cubix-cloudnative-block2-homework-backapp-1
+# 2024-06-10T00:28:55.267Z  INFO 1 --- [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'     
+# 2024-06-10T00:28:55.268Z  INFO 1 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+# 2024-06-10T00:28:55.269Z  INFO 1 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+# 2024-06-10T00:28:55.308Z  INFO 1 --- [nio-8080-exec-1] hu.cubix.cloud.api.BackappController     : Request arrived with message Hello
+# 2024-06-10T00:28:55.312Z  INFO 1 --- [nio-8080-exec-1] hu.cubix.cloud.api.BackappController     : Returning response: BackappResponse[time=2024-06-10T00:28:55.309923988, message=Hello, homeworkOwner=Nyőgér János, hostAddress=172.26.0.3, extraImageData=Cubix training]
+
+docker logs cubix-cloudnative-block2-homework-frontapp-1
+# 2024-06-10T00:28:55.169Z  INFO 1 --- [nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'     
+# 2024-06-10T00:28:55.169Z  INFO 1 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+# 2024-06-10T00:28:55.171Z  INFO 1 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+# 2024-06-10T00:28:55.199Z  INFO 1 --- [nio-8080-exec-2] h.c.c.api.controller.FrontappController  : Preparing for calling backapp - message was: Hello
+# 2024-06-10T00:28:55.201Z  INFO 1 --- [nio-8080-exec-2] h.c.c.api.controller.FrontappController  : Calling backapp
+# 2024-06-10T00:28:55.456Z  INFO 1 --- [nio-8080-exec-2] h.c.c.api.controller.FrontappController  : Backapp call was successful, response was: BackappResponse[time=2024-06-10T00:28:55.309923988, message=Hello, homeworkOwner=Nyőgér János, hostAddress=172.26.0.3, extraImageData=Cubix training]
+# 2024-06-10T00:28:55.465Z  INFO 1 --- [nio-8080-exec-2] h.c.c.api.controller.FrontappController  : Response will be: FrontappResponse[msForReply=108, backappMessage=Hello, frontappHomeworkOwner=Nyőgér János, frontappHostAddress=172.26.0.2, backappHomeworkOwner=Nyőgér János, backappHostAddress=172.26.0.3, doExtraImageDataMatch=true]
+
+
+# sending a request from Postman without a message
+docker logs cubix-cloudnative-block2-homework-backapp-1
+# 2024-06-10T00:31:26.949Z  INFO 1 --- [nio-8080-exec-3] hu.cubix.cloud.api.BackappController     : Request arrived with message
+# 2024-06-10T00:31:26.950Z  INFO 1 --- [nio-8080-exec-3] hu.cubix.cloud.api.BackappController     : Message was empty, fall back to default
+# 2024-06-10T00:31:26.950Z  INFO 1 --- [nio-8080-exec-3] hu.cubix.cloud.api.BackappController     : Default message was empty, falling back to hardcoded default  
+# 2024-06-10T00:31:26.950Z  INFO 1 --- [nio-8080-exec-3] hu.cubix.cloud.api.BackappController     : Returning response: BackappResponse[time=2024-06-10T00:31:26.950439419, message=hardcoded-default-backapp-message, homeworkOwner=Nyőgér János, hostAddress=172.26.0.3, extraImageData=Cubix training]
+
+docker logs cubix-cloudnative-block2-homework-frontapp-1
+# 2024-06-10T00:31:26.941Z  INFO 1 --- [nio-8080-exec-5] h.c.c.api.controller.FrontappController  : Preparing for calling backapp - message was: null
+# 2024-06-10T00:31:26.942Z  INFO 1 --- [nio-8080-exec-5] h.c.c.api.controller.FrontappController  : Calling backapp
+# 2024-06-10T00:31:26.955Z  INFO 1 --- [nio-8080-exec-5] h.c.c.api.controller.FrontappController  : Backapp call was successful, response was: BackappResponse[time=2024-06-10T00:31:26.950439419, message=hardcoded-default-backapp-message, homeworkOwner=Nyőgér János, hostAddress=172.26.0.3, extraImageData=Cubix training]  
+# 2024-06-10T00:31:26.956Z  INFO 1 --- [nio-8080-exec-5] h.c.c.api.controller.FrontappController  : Response will be: FrontappResponse[msForReply=8, backappMessage=hardcoded-default-backapp-message, frontappHomeworkOwner=Nyőgér János, frontappHostAddress=172.26.0.2, backappHomeworkOwner=Nyőgér János, backappHostAddress=172.26.0.3, doExtraImageDataMatch=true]
+
+
+docker compose down
